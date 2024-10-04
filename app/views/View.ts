@@ -1,18 +1,25 @@
-export abstract class View<T>{
+export abstract class View<T> {
+  protected elemento: HTMLElement;
+  private scape = false;
 
-    protected elemento:  HTMLElement;
-
-    constructor(seletor: string){
-        this.elemento = document.querySelector(seletor);
+  constructor(seletor: string, scape?: boolean) {
+    const elemento = document.querySelector(seletor);
+    if (elemento) {
+      this.elemento = elemento as HTMLElement;
+    } else {
+      throw new Error("Elemento não encontrado");
     }
-
-    protected abstract template(model: T): string;
-
-    public update(model: T){
-        const template = this.template(model);
-        this.elemento.innerHTML = template;
+    if (scape) {
+      this.scape = scape;
     }
+  }
+  public update(model: T) {
+    let template = this.template(model);
+    if (this.scape) {
+      template = template.replace(/<script>[\s\S]*?<\/script>/g, "");
+    }
+    this.elemento.innerHTML = template;
+  }
 
-    
-
+  protected abstract template(model: T): string;
 }
